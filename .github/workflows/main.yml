@@ -1,0 +1,19 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: install deps
+        run: |
+              sudo apt-get install build-essential
+              sudo apt-get install g++
+      - name: build
+        run: |
+            g++ -std=c++23 main.cpp
+      - name: test
+        run: |
+          ./a.out
