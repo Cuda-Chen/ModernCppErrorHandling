@@ -132,7 +132,7 @@ void test_nonexisted_config_file() {
        .and_then([](const Config& cfg) { return ValidateData(cfg); })
        .and_then([](const ValidatedData& vd) { return ProcessData(vd); });
 
-    assert(ret.value() == 0);
+    assert(ret.has_value() == false);
 }
 
 int main() {
