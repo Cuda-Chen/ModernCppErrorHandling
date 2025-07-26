@@ -135,7 +135,7 @@ void test_nonexisted_config_file() {
        .and_then([](const ValidatedData& vd) { return ProcessData(vd); });
 
     assert(ret.has_value() == false);
-    assert(typeid(std::visit(ret.error()) == typeid(ConfigReadError));
+    assert(typeid(std::visit(ret.error())) == typeid(ConfigReadError));
 }
 
 int main() {
