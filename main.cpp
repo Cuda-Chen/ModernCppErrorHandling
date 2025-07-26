@@ -6,7 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept> // For std::runtime_error in main for unhandled cases
+
 #include <cassert>
+#include <typeinfo>
 
 // Step 1: Define Custom Error Types
 struct ConfigReadError {
@@ -133,6 +135,7 @@ void test_nonexisted_config_file() {
        .and_then([](const ValidatedData& vd) { return ProcessData(vd); });
 
     assert(ret.has_value() == false);
+    assert(typeid(std::visit(ret.error()) == typeid(ConfigReadError));
 }
 
 int main() {
