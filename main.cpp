@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept> // For std::runtime_error in main for unhandled cases
+#include <cassert>
 
 // Step 1: Define Custom Error Types
 struct ConfigReadError {
@@ -126,6 +127,14 @@ void handle_pipeline_result(const std::expected<Result, PipelineError>& final_re
     }
 }
 
+void test_nonexisted_config_file() {
+    auto ret = LoadConfig("this_file_should_not_exist.txt")
+       .and_then([](const Config& cfg) { return ValidateData(cfg); })
+       .and_then([](const ValidatedData& vd) { return ProcessData(vd); });
+
+    assert(ret.value() == 0);
+}
+
 int main() {
     // Scenario 1: Successful pipeline execution
     std::cout << "--- Scenario 1: Successful Execution ---" << std::endl;
@@ -175,5 +184,8 @@ int main() {
     std::remove("malformed_config.txt");
     std::remove("invalid_data_config.txt");
     std::remove("short_data_config.txt");
+
+    // Unit test here
+
     return 0;
 }
