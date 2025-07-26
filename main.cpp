@@ -7,6 +7,9 @@
 #include <sstream>
 #include <stdexcept> // For std::runtime_error in main for unhandled cases
 
+#include <cassert>
+#include <typeinfo>
+
 // Step 1: Define Custom Error Types
 struct ConfigReadError {
     std::string filename;
@@ -126,6 +129,29 @@ void handle_pipeline_result(const std::expected<Result, PipelineError>& final_re
     }
 }
 
+// A helper function for unit tests calling pipeline.
+[[nodiscard]] std::expected<Result, PipelineError> call_pipeline(const std::string &configfile) {
+    return LoadConfig(configfile)
+       .and_then([](const Config& cfg) { return ValidateData(cfg); })
+       .and_then([](const ValidatedData& vd) { return ProcessData(vd); });
+}
+
+void test_read_nonexisted_config_file() {
+    const std::string filename = "this_file_should_not_exist.txt";
+    ConfigReadError expected = {
+        .filename = filename,
+    };
+    auto ret = call_pipeline(filename);
+
+    assert(ret.has_value() == false);
+    auto target = ret.error();
+    ConfigReadError *c = std::get_if<ConfigReadError>(&target);
+    assert(c != nullptr);
+    assert(c->filename == expected.filename);
+
+    std::cout << "test_read_nonexisted_config_file() passes" << std::endl;
+}
+
 int main() {
     // Scenario 1: Successful pipeline execution
     std::cout << "--- Scenario 1: Successful Execution ---" << std::endl;
@@ -175,5 +201,11 @@ int main() {
     std::remove("malformed_config.txt");
     std::remove("invalid_data_config.txt");
     std::remove("short_data_config.txt");
+
+    // Conduct unit tests
+    std::cout << "\n--- Start unit testing. ---" << std::endl;
+    test_read_nonexisted_config_file();
+    std::cout << "\n--- All unit tests pass. ---" << std::endl;
+
     return 0;
 }
